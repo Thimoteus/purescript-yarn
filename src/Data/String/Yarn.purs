@@ -102,9 +102,13 @@ capitalize str = case uncons str of
 capWords :: String -> String
 capWords = unwords <<< map capitalize <<< words
 
+-- | Append a space to the right of a `String`
+rightpad :: String -> String
+rightpad = (_ <> " ")
+
 -- | Append a space to the left of a `String`
 leftpad :: String -> String
-leftpad = (_ <> " ")
+leftpad = append " "
 
 -- | Reverse a `String`, may give funky results with unicode
 reverse :: String -> String
