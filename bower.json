@@ -9,7 +9,6 @@
     "output"
   ],
   "dependencies": {
-    "purescript-console": "^1.0.0",
     "purescript-strings": "^1.0.0",
     "purescript-arrays": "^1.0.0",
     "purescript-generics": "^1.0.0"

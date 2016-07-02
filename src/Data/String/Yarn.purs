@@ -10,24 +10,29 @@ module Data.String.Yarn
   , words
   , unwords
   , substitute
+  , substituteMany
   , capitalize
   , capWords
-  , leftpad
+  , rightpad, rightpadBy
+  , leftpad, leftpadBy
   , reverse
   , replicate
   , charMap
   , charTraverse
   , charFold
+  , rot13
   ) where
 
 import Prelude
 
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
+import Data.Char (toCharCode, fromCharCode)
 import Data.String (singleton, split, joinWith, replace, uncons, toUpper, toCharArray, fromCharArray)
-import Data.Traversable (class Foldable, foldMap, traverse)
+import Data.Traversable (class Foldable, foldMap, traverse, foldl)
 import Data.Monoid (class Monoid)
 import Data.Generic (class Generic)
+import Data.Tuple (Tuple(..))
 
 class IsString a where
   fromString :: String -> a
@@ -92,6 +97,12 @@ until p f x = until p f (f x)
 substitute :: String -> String -> String -> String
 substitute old new = until eq (replace old new)
 
+-- | Replace many substitutions given some association list
+substituteMany :: forall f. Foldable f => f (Tuple String String) -> String -> String
+substituteMany = flip (foldl f)
+  where
+    f str (Tuple old new) = substitute old new str
+
 -- | Capitalize the first `Char` in a `String`
 capitalize :: String -> String
 capitalize str = case uncons str of
@@ -106,9 +117,17 @@ capWords = unwords <<< map capitalize <<< words
 rightpad :: String -> String
 rightpad = (_ <> " ")
 
+-- | Append a given number of spaces to the right of a `String`
+rightpadBy :: Int -> String -> String
+rightpadBy n = (_ <> replicate n ' ')
+
 -- | Append a space to the left of a `String`
 leftpad :: String -> String
 leftpad = append " "
+
+-- | Append a given number of spaces to the left of a `String`
+leftpadBy :: Int -> String -> String
+leftpadBy n = append (replicate n ' ')
 
 -- | Reverse a `String`, may give funky results with unicode
 reverse :: String -> String
@@ -134,3 +153,13 @@ charFold f z str = case uncons str of
 -- | Transform a Kleisli arrow on `Char`s to one on `String`s
 charTraverse :: forall m. Applicative m => (Char -> m Char) -> String -> m String
 charTraverse f str = fromCharArray <$> traverse f (toCharArray str)
+
+-- | Cresbezf n ebg13 fhofgvghgvba ba n `Fgevat`
+rot13 :: String -> String
+rot13 = charMap rotate
+  where
+    rotate :: Char -> Char
+    rotate c
+      | toCharCode c <= 90 && toCharCode c >= 65 = fromCharCode $ 65 + ((toCharCode c - 52) `mod` 26)
+      | toCharCode c <= 122 && toCharCode c >= 97 = fromCharCode $ 97 + ((toCharCode c - 84) `mod` 26)
+      | otherwise = c
