@@ -5,21 +5,21 @@ module Data.String.Yarn
   , runTag
   , tag
   , fromChars
-  , lines
-  , unlines
-  , words
-  , unwords
-  , substitute
-  , substituteMany
-  , capitalize
-  , capWords
+  , cons, (:)
+  , snoc
+  , range, (..)
+  , head, last
+  , tail, init
+  , index, (!!)
+  , lines, unlines
+  , words, unwords
+  , substitute, substituteMany
+  , capitalize, capWords
   , rightpad, rightpadBy
   , leftpad, leftpadBy
   , reverse
   , replicate
-  , charMap
-  , charTraverse
-  , charFold
+  , charMap, charTraverse, charFold
   , rot13
   ) where
 
@@ -27,8 +27,8 @@ import Prelude
 
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
-import Data.Char (toCharCode, fromCharCode)
-import Data.String (singleton, split, joinWith, replace, uncons, toUpper, toCharArray, fromCharArray)
+import Data.Char (toCharCode, fromCharCode, toUpper)
+import Data.String (singleton, split, joinWith, replace, uncons, toCharArray, fromCharArray, contains, charAt, length, take, null)
 import Data.Traversable (class Foldable, foldMap, traverse, foldl)
 import Data.Monoid (class Monoid)
 import Data.Generic (class Generic)
@@ -61,17 +61,59 @@ instance semigroupTagString :: Semigroup (TagString a) where
 instance monoidTagString :: Monoid (TagString a) where
   mempty = Tag ""
 
--- | Turn a tagged `String` into a `String`
+-- | Turn a `TagString` into a `String`
 runTag :: forall a. TagString a -> String
 runTag (Tag s) = s
 
--- | Turn a `String` into a tagged `String`
+-- | Turn a `String` into a `TagString`
 tag :: forall a. String -> TagString a
 tag = Tag
 
 -- | Turn a `Foldable` container of `Char`s to a `String`
 fromChars :: forall f. Foldable f => f Char -> String
 fromChars = foldMap singleton
+
+-- | Attach a `Char` to the front of a `String`
+cons :: Char -> String -> String
+cons = append <<< singleton
+
+infixr 5 cons as :
+
+-- | Attach a `Char` to the end of a `String`
+snoc :: String -> Char -> String
+snoc s c = s <> singleton c
+
+-- | Create a `String` containing a range of `Char`s, inclusive
+range :: Int -> Int -> String
+range mn mx = fromCharArray $ map fromCharCode $ Array.range mn mx
+
+infix 8 range as ..
+
+-- | Safely get the first `Char` in a `String`
+head :: String -> Maybe Char
+head = charAt 0
+
+-- | Safely get all but the first `Char` in a `String`
+tail :: String -> Maybe String
+tail s = case uncons s of
+  Just r -> Just r.tail
+  _ -> Nothing
+
+-- | Safely get the last `Char` in a `String
+last :: String -> Maybe Char
+last s | null s = Nothing
+last s = charAt (length s - 1) s
+
+-- | Safely get all but the last `Char` in a `String`
+init :: String -> Maybe String
+init s | null s = Nothing
+init s = Just (take (length s - 1) s)
+
+-- | Safely get the `Char` at a given index of a `String`
+index :: String -> Int -> Maybe Char
+index = flip charAt
+
+infixl 8 index as !!
 
 -- | Split a `String` by its newlines
 lines :: String -> Array String
@@ -89,13 +131,17 @@ words = split " "
 unwords :: Array String -> String
 unwords = joinWith " "
 
+-- | Check if a `Char` is in a `String`
+elem :: Char -> String -> Boolean
+elem = contains <<< singleton
+
 until :: forall a. (a -> a -> Boolean) -> (a -> a) -> a -> a
 until p f x | p x (f x) = x
 until p f x = until p f (f x)
 
 -- | Like `replace` but acts globally
 substitute :: String -> String -> String -> String
-substitute old new = until eq (replace old new)
+substitute old = until eq <<< replace old
 
 -- | Replace many substitutions given some association list
 substituteMany :: forall f. Foldable f => f (Tuple String String) -> String -> String
@@ -106,7 +152,7 @@ substituteMany = flip (foldl f)
 -- | Capitalize the first `Char` in a `String`
 capitalize :: String -> String
 capitalize str = case uncons str of
-  Just {head, tail} -> toUpper (singleton head) <> tail
+  Just o -> cons (toUpper o.head) o.tail
   _ -> str
 
 -- | Capitalize the first `Char` in each word of a given `String`
@@ -138,7 +184,7 @@ replicate :: Int -> Char -> String
 replicate = replicate' ""
   where
     replicate' acc 0 _ = acc
-    replicate' acc n c = replicate' (singleton c <> acc) (n - 1) c
+    replicate' acc n c = replicate' (cons c acc) (n - 1) c
 
 -- | Transform a function on `Char`s to a function on `String`s
 charMap :: (Char -> Char) -> String -> String
@@ -147,7 +193,7 @@ charMap f = fromCharArray <<< map f <<< toCharArray
 -- | Fold over a `String` with a function that takes an accumulator `String` and next `Char` as input
 charFold :: (String -> Char -> String) -> String -> String -> String
 charFold f z str = case uncons str of
-  Just {head, tail} -> charFold f (f z head) tail
+  Just o -> charFold f (f z o.head) o.tail
   _ -> z
 
 -- | Transform a Kleisli arrow on `Char`s to one on `String`s
