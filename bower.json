@@ -1,9 +1,9 @@
 {
   "name": "purescript-yarn",
-  "version": "1.3.0",
-  "repository": {                                                          
-    "type": "git",                                                         
-    "url": "git://github.com/thimoteus/purescript-yarn.git"            
+  "version": "1.3.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/thimoteus/purescript-yarn.git"
   },
   "license": "MIT",
   "ignore": [
