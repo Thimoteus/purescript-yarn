@@ -28,7 +28,7 @@ import Prelude
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.Char (toCharCode, fromCharCode, toUpper)
-import Data.String (singleton, split, joinWith, replace, uncons, toCharArray, fromCharArray, contains, charAt, length, take, null)
+import Data.String (singleton, split, joinWith, replace, uncons, toCharArray, fromCharArray, contains, charAt, length, take, null, Replacement(..), Pattern(..))
 import Data.Traversable (class Foldable, foldMap, traverse, foldl)
 import Data.Monoid (class Monoid)
 import Data.Generic (class Generic)
@@ -117,7 +117,7 @@ infixl 8 index as !!
 
 -- | Split a `String` by its newlines
 lines :: String -> Array String
-lines = split "\n"
+lines = split (Pattern "\n")
 
 -- | Join an `Array` of `String`s with newlines
 unlines :: Array String -> String
@@ -125,7 +125,7 @@ unlines = joinWith "\n"
 
 -- | Split a `String` by its spaces
 words :: String -> Array String
-words = split " "
+words = split (Pattern " ")
 
 -- | Join an `Array` of `String`s with spaces
 unwords :: Array String -> String
@@ -133,7 +133,7 @@ unwords = joinWith " "
 
 -- | Check if a `Char` is in a `String`
 elem :: Char -> String -> Boolean
-elem = contains <<< singleton
+elem = contains <<< Pattern <<< singleton
 
 until :: forall a. (a -> a -> Boolean) -> (a -> a) -> a -> a
 until p f x | p x (f x) = x
@@ -141,7 +141,7 @@ until p f x = until p f (f x)
 
 -- | Like `replace` but acts globally
 substitute :: String -> String -> String -> String
-substitute old = until eq <<< replace old
+substitute old new = until eq $ replace (Pattern old) (Replacement new)
 
 -- | Replace many substitutions given some association list
 substituteMany :: forall f. Foldable f => f (Tuple String String) -> String -> String
