@@ -5,6 +5,7 @@ module Data.String.Yarn
   , runTag
   , tag
   , fromChars
+  , toChars
   , cons, (:)
   , snoc
   , range, (..)
@@ -24,15 +25,15 @@ module Data.String.Yarn
   ) where
 
 import Prelude
-
 import Data.Array as Array
-import Data.Maybe (Maybe(..))
 import Data.Char (toCharCode, fromCharCode, toUpper)
+import Data.Generic (class Generic)
+import Data.Maybe (Maybe(..))
+import Data.Monoid (class Monoid)
 import Data.String (singleton, split, joinWith, replace, uncons, toCharArray, fromCharArray, contains, charAt, length, take, null)
 import Data.Traversable (class Foldable, foldMap, traverse, foldl)
-import Data.Monoid (class Monoid)
-import Data.Generic (class Generic)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (class Unfoldable, unfoldr)
 
 class IsString a where
   fromString :: String -> a
@@ -72,6 +73,15 @@ tag = Tag
 -- | Turn a `Foldable` container of `Char`s to a `String`
 fromChars :: forall f. Foldable f => f Char -> String
 fromChars = foldMap singleton
+
+-- | Turn a `String` into an `Unfoldable` container of `Char`s. For example:
+-- |
+-- | ~~~ purescript
+-- | toChars "Foo" == ['F','o','o'] :: Array Char
+-- | ~~~
+toChars :: forall f. Unfoldable f => String -> f Char
+toChars = unfoldr step
+  where step str = Tuple <$> head str <*> tail str
 
 -- | Attach a `Char` to the front of a `String`
 cons :: Char -> String -> String
