@@ -27,7 +27,7 @@ module Data.String.Yarn
 import Prelude
 import Data.Array as Array
 import Data.Char (toCharCode, fromCharCode, toUpper)
-import Data.Generic (class Generic)
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (class Monoid)
 import Data.String (singleton, split, joinWith, replace, uncons, toCharArray, fromCharArray, contains, charAt, length, take, null, Replacement(..), Pattern(..))
@@ -45,13 +45,13 @@ instance isStringArrayChar :: IsString (Array Char) where
   fromString = toCharArray
 
 -- | A generic `String` tagged by a row of data types
-newtype TagString (a :: # *) = Tag String
+newtype TagString (a :: # Type) = Tag String
 
 derive instance eqTagString :: Eq (TagString a)
 
 derive instance ordTagString :: Ord (TagString a)
 
-derive instance genericTagString :: Generic (TagString a)
+derive instance genericTagString :: Generic (TagString a) _
 
 instance showTagString :: Show (TagString a) where
   show (Tag s) = "Tag " <> show s

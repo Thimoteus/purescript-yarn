@@ -3,7 +3,7 @@
 #### `IsString`
 
 ``` purescript
-class IsString a where
+class IsString a  where
   fromString :: String -> a
 ```
 
@@ -16,7 +16,7 @@ IsString (Array Char)
 #### `TagString`
 
 ``` purescript
-newtype TagString (a :: # *)
+newtype TagString (a :: # Type)
 ```
 
 A generic `String` tagged by a row of data types
@@ -25,7 +25,7 @@ A generic `String` tagged by a row of data types
 ``` purescript
 Eq (TagString a)
 Ord (TagString a)
-Generic (TagString a)
+Generic (TagString a) _
 Show (TagString a)
 Semigroup (TagString a)
 Monoid (TagString a)
@@ -54,6 +54,18 @@ fromChars :: forall f. Foldable f => f Char -> String
 ```
 
 Turn a `Foldable` container of `Char`s to a `String`
+
+#### `toChars`
+
+``` purescript
+toChars :: forall f. Unfoldable f => String -> f Char
+```
+
+Turn a `String` into an `Unfoldable` container of `Char`s. For example:
+
+~~~ purescript
+toChars "Foo" == ['F','o','o'] :: Array Char
+~~~
 
 #### `cons`
 
