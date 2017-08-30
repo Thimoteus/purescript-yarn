@@ -30,7 +30,7 @@ import Data.Char (toCharCode, fromCharCode, toUpper)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (class Monoid)
-import Data.String (singleton, split, joinWith, replace, uncons, toCharArray, fromCharArray, contains, charAt, length, take, null, Replacement(..), Pattern(..))
+import Data.String (Pattern(Pattern), Replacement, charAt, contains, fromCharArray, joinWith, length, null, replace, singleton, split, take, toCharArray, uncons)
 import Data.Traversable (class Foldable, foldMap, traverse, foldl)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -150,11 +150,11 @@ until p f x | p x (f x) = x
 until p f x = until p f (f x)
 
 -- | Like `replace` but acts globally
-substitute :: String -> String -> String -> String
-substitute old new = until eq $ replace (Pattern old) (Replacement new)
+substitute :: Pattern -> Replacement -> String -> String
+substitute old new = until eq $ replace old new
 
 -- | Replace many substitutions given some association list
-substituteMany :: forall f. Foldable f => f (Tuple String String) -> String -> String
+substituteMany :: forall f. Foldable f => f (Tuple Pattern Replacement) -> String -> String
 substituteMany = flip (foldl f)
   where
     f str (Tuple old new) = substitute old new str
