@@ -36,3 +36,5 @@ main = do
   logShow $ reverse "abcdefg" == "gfedcba"
   log "replicate test"
   logShow $ replicate 5 'a' == "aaaaa"
+  log "replicate negative test"
+  logShow $ replicate (-1) 'a' == ""

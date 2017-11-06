@@ -193,8 +193,8 @@ reverse = fromCharArray <<< Array.reverse <<< toCharArray
 replicate :: Int -> Char -> String
 replicate = replicate' ""
   where
-    replicate' acc 0 _ = acc
-    replicate' acc n c = replicate' (cons c acc) (n - 1) c
+    replicate' acc n c | n <= 0 = acc
+                       | otherwise = replicate' (cons c acc) (n - 1) c
 
 -- | Transform a function on `Char`s to a function on `String`s
 charMap :: (Char -> Char) -> String -> String
