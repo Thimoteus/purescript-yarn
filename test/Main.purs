@@ -1,9 +1,11 @@
 module Test.Main where
 
+import Data.String.Yarn (capWords, capitalize, fromChars, leftpad, lines, replicate, reverse, substitute, unlines, unwords, words)
 import Prelude
+
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log, logShow)
-import Data.String.Yarn
+import Data.String (Pattern(..), Replacement(..))
 
 multiln :: String
 multiln = """abc
@@ -25,13 +27,13 @@ main = do
   log "words and unwords test"
   logShow $ unwords (words "abc def ghi") == "abc def ghi"
   log "substitute test"
-  logShow $ substitute "abc" "123" littlemj == littlemj'
+  logShow $ substitute (Pattern "abc") (Replacement "123") littlemj == littlemj'
   log "capitalize test"
   logShow $ capitalize "abc 123" == "Abc 123"
   log "capWords test"
   logShow $ capWords "abc def ghi" == "Abc Def Ghi"
   log "leftpad test"
-  logShow $ leftpad "abc" == "abc "
+  logShow $ leftpad "abc" == " abc"
   log "reverse test"
   logShow $ reverse "abcdefg" == "gfedcba"
   log "replicate test"
