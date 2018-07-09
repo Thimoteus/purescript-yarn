@@ -3,8 +3,8 @@ module Test.Main where
 import Data.String.Yarn (capWords, capitalize, fromChars, leftpad, lines, replicate, reverse, substitute, unlines, unwords, words)
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log, logShow)
+import Effect (Effect)
+import Effect.Console (log, logShow)
 import Data.String (Pattern(..), Replacement(..))
 
 multiln :: String
@@ -18,7 +18,7 @@ littlemj = "abc, it's easy as 123, as simple as do re mi, abc, 123, baby you and
 littlemj' :: String
 littlemj' = "123, it's easy as 123, as simple as do re mi, 123, 123, baby you and me girl"
 
-main :: forall e. Eff (console :: CONSOLE | e) Unit
+main :: Effect Unit
 main = do
   log "fromChars test"
   logShow $ fromChars ['a', 'b', 'c'] == "abc"

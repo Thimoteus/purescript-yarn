@@ -24,9 +24,8 @@
   },
   "homepage": "https://github.com/Thimoteus/purescript-yarn#readme",
   "dependencies": {
-    "purescript": "^0.11.6",
-    "purescript-psa": "^0.5.1",
-    "rimraf": "^2.6.1",
-    "pulp": "^11.0.2"
+    "purescript-psa": "^0.6.0",
+    "rimraf": "^2.6.2",
+    "pulp": "^12.3.0"
   }
 }

@@ -8,7 +8,7 @@ module Data.String.Yarn
   , toChars
   , cons, (:)
   , snoc
-  , range, (..)
+  , range, (..), unsafeRange
   , head, last
   , tail, init
   , index, (!!)
@@ -25,12 +25,13 @@ module Data.String.Yarn
   ) where
 
 import Prelude
+
 import Data.Array as Array
 import Data.Char (toCharCode, fromCharCode)
 import Data.Char.Unicode (toUpper)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), fromJust)
-import Data.String (Pattern(Pattern), Replacement, contains, joinWith, length, null, replace, split, take)
+import Data.String (CodePoint, Pattern(Pattern), Replacement, contains, joinWith, length, null, replace, split, take, toCodePointArray)
 import Data.String.CodeUnits (charAt, fromCharArray, singleton, toCharArray, uncons)
 import Data.Traversable (class Foldable, foldMap, traverse, foldl)
 import Data.Tuple (Tuple(..))
@@ -45,6 +46,13 @@ instance isStringString :: IsString String where
 
 instance isStringArrayChar :: IsString (Array Char) where
   fromString = toCharArray
+else instance isStringUnfoldableChar :: Unfoldable f => IsString (f Char) where
+  fromString = Array.toUnfoldable <<< toCharArray
+
+instance isStringArrayCodePoint :: IsString (Array CodePoint) where
+  fromString = toCodePointArray
+else instance isStringUnfoldableCodePoint :: Unfoldable f => IsString (f CodePoint) where
+  fromString = Array.toUnfoldable <<< toCodePointArray
 
 -- | A generic `String` tagged by a row of data types
 newtype TagString (a :: # Type) = Tag String
@@ -99,8 +107,11 @@ snoc :: String -> Char -> String
 snoc s c = s <> singleton c
 
 -- | Create a `String` containing a range of `Char`s, inclusive
-range :: Int -> Int -> String
-range mn mx = fromCharArray $ map unsafeFromCharCode $ Array.range mn mx
+range :: Int -> Int -> Maybe String
+range mn mx = map fromCharArray $ traverse fromCharCode $ Array.range mn mx
+
+unsafeRange :: Int -> Int -> String
+unsafeRange mn mx = fromCharArray $ map unsafeFromCharCode $ Array.range mn mx
 
 infix 8 range as ..
 
