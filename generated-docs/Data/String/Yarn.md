@@ -11,6 +11,9 @@ class IsString a  where
 ``` purescript
 IsString String
 IsString (Array Char)
+(Unfoldable f) => IsString (f Char)
+IsString (Array CodePoint)
+(Unfoldable f) => IsString (f CodePoint)
 ```
 
 #### `TagString`
@@ -92,7 +95,7 @@ Attach a `Char` to the end of a `String`
 #### `range`
 
 ``` purescript
-range :: Int -> Int -> String
+range :: Int -> Int -> Maybe String
 ```
 
 Create a `String` containing a range of `Char`s, inclusive
@@ -103,6 +106,12 @@ Create a `String` containing a range of `Char`s, inclusive
 infix 8 range as ..
 ```
 
+#### `unsafeRange`
+
+``` purescript
+unsafeRange :: Int -> Int -> String
+```
+
 #### `head`
 
 ``` purescript
@@ -111,14 +120,6 @@ head :: String -> Maybe Char
 
 Safely get the first `Char` in a `String`
 
-#### `tail`
-
-``` purescript
-tail :: String -> Maybe String
-```
-
-Safely get all but the first `Char` in a `String`
-
 #### `last`
 
 ``` purescript
@@ -126,6 +127,14 @@ last :: String -> Maybe Char
 ```
 
 Safely get the last `Char` in a `String
+
+#### `tail`
+
+``` purescript
+tail :: String -> Maybe String
+```
+
+Safely get all but the first `Char` in a `String`
 
 #### `init`
 
@@ -184,7 +193,7 @@ Join an `Array` of `String`s with spaces
 #### `substitute`
 
 ``` purescript
-substitute :: String -> String -> String -> String
+substitute :: Pattern -> Replacement -> String -> String
 ```
 
 Like `replace` but acts globally
@@ -192,7 +201,7 @@ Like `replace` but acts globally
 #### `substituteMany`
 
 ``` purescript
-substituteMany :: forall f. Foldable f => f (Tuple String String) -> String -> String
+substituteMany :: forall f. Foldable f => f (Tuple Pattern Replacement) -> String -> String
 ```
 
 Replace many substitutions given some association list
@@ -269,14 +278,6 @@ charMap :: (Char -> Char) -> String -> String
 
 Transform a function on `Char`s to a function on `String`s
 
-#### `charFold`
-
-``` purescript
-charFold :: (String -> Char -> String) -> String -> String -> String
-```
-
-Fold over a `String` with a function that takes an accumulator `String` and next `Char` as input
-
 #### `charTraverse`
 
 ``` purescript
@@ -284,6 +285,14 @@ charTraverse :: forall m. Applicative m => (Char -> m Char) -> String -> m Strin
 ```
 
 Transform a Kleisli arrow on `Char`s to one on `String`s
+
+#### `charFold`
+
+``` purescript
+charFold :: (String -> Char -> String) -> String -> String -> String
+```
+
+Fold over a `String` with a function that takes an accumulator `String` and next `Char` as input
 
 #### `rot13`
 
