@@ -26,20 +26,22 @@ module Data.String.Yarn
 
 import Prelude
 import Data.Array as Array
-import Data.Char (toCharCode, fromCharCode, toUpper)
+import Data.Char (toCharCode, fromCharCode)
+import Data.Char.Unicode (toUpper)
 import Data.Generic.Rep (class Generic)
-import Data.Maybe (Maybe(..))
-import Data.Monoid (class Monoid)
-import Data.String (Pattern(Pattern), Replacement, charAt, contains, fromCharArray, joinWith, length, null, replace, singleton, split, take, toCharArray, uncons)
+import Data.Maybe (Maybe(..), fromJust)
+import Data.String (Pattern(Pattern), Replacement, contains, joinWith, length, null, replace, split, take)
+import Data.String.CodeUnits (charAt, fromCharArray, singleton, toCharArray, uncons)
 import Data.Traversable (class Foldable, foldMap, traverse, foldl)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
+import Partial.Unsafe (unsafePartial)
 
 class IsString a where
   fromString :: String -> a
 
 instance isStringString :: IsString String where
-  fromString = id
+  fromString = identity
 
 instance isStringArrayChar :: IsString (Array Char) where
   fromString = toCharArray
@@ -61,6 +63,9 @@ instance semigroupTagString :: Semigroup (TagString a) where
 
 instance monoidTagString :: Monoid (TagString a) where
   mempty = Tag ""
+
+unsafeFromCharCode :: Int -> Char
+unsafeFromCharCode x = unsafePartial $ fromJust $ fromCharCode x
 
 -- | Turn a `TagString` into a `String`
 runTag :: forall a. TagString a -> String
@@ -95,7 +100,7 @@ snoc s c = s <> singleton c
 
 -- | Create a `String` containing a range of `Char`s, inclusive
 range :: Int -> Int -> String
-range mn mx = fromCharArray $ map fromCharCode $ Array.range mn mx
+range mn mx = fromCharArray $ map unsafeFromCharCode $ Array.range mn mx
 
 infix 8 range as ..
 
@@ -216,6 +221,6 @@ rot13 = charMap rotate
   where
     rotate :: Char -> Char
     rotate c
-      | toCharCode c <= 90 && toCharCode c >= 65 = fromCharCode $ 65 + ((toCharCode c - 52) `mod` 26)
-      | toCharCode c <= 122 && toCharCode c >= 97 = fromCharCode $ 97 + ((toCharCode c - 84) `mod` 26)
+      | toCharCode c <= 90 && toCharCode c >= 65 = unsafeFromCharCode $ 65 + ((toCharCode c - 52) `mod` 26)
+      | toCharCode c <= 122 && toCharCode c >= 97 = unsafeFromCharCode $ 97 + ((toCharCode c - 84) `mod` 26)
       | otherwise = c
