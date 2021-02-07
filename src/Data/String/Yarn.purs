@@ -28,7 +28,7 @@ import Prelude
 
 import Data.Array as Array
 import Data.Char (toCharCode, fromCharCode)
-import Data.Char.Unicode (toUpper)
+import Data.String.Unicode (toUpper)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.String (CodePoint, Pattern(Pattern), Replacement, contains, joinWith, length, null, replace, split, take, toCodePointArray)
@@ -55,7 +55,7 @@ else instance isStringUnfoldableCodePoint :: Unfoldable f => IsString (f CodePoi
   fromString = Array.toUnfoldable <<< toCodePointArray
 
 -- | A generic `String` tagged by a row of data types
-newtype TagString (a :: # Type) = Tag String
+newtype TagString (a :: Row Type) = Tag String
 
 derive instance eqTagString :: Eq (TagString a)
 
@@ -178,7 +178,7 @@ substituteMany = flip (foldl f)
 -- | Capitalize the first `Char` in a `String`
 capitalize :: String -> String
 capitalize str = case uncons str of
-  Just o -> cons (toUpper o.head) o.tail
+  Just o -> append (toUpper $ singleton o.head) o.tail
   _ -> str
 
 -- | Capitalize the first `Char` in each word of a given `String`
